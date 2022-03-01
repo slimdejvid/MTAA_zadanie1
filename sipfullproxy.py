@@ -48,7 +48,7 @@ rx_uri = re.compile("sip:([^@]*)@([^;>$]*)")
 rx_addr = re.compile("sip:([^ ;>$]*)")
 #rx_addrport = re.compile("([^:]*):(.*)")
 rx_code = re.compile("^SIP/2.0 ([^ ]*)")
-rx_invalid = re.compile("^192\.168")
+#rx_invalid = re.compile("^192\.168")
 rx_invalid2 = re.compile("^10\.")
 #rx_cseq = re.compile("^CSeq:")
 #rx_callid = re.compile("Call-ID: (.*)$")
@@ -97,7 +97,7 @@ class UDPHandler(socketserver.BaseRequestHandler):
         if md:
             method = md.group(1)
             uri = md.group(2)
-            if registrar.has_key(uri):
+            if uri in registrar:
                 uri = "sip:%s" % registrar[uri][0]
                 self.data[0] = "%s %s SIP/2.0" % (method,uri)
         
@@ -202,7 +202,7 @@ class UDPHandler(socketserver.BaseRequestHandler):
                 break
         data.append("")
         text = "\r\n".join(data).encode("utf-8")
-        self.socket.sendto(text,self.client_address)
+        self.socket.sendto(text, self.client_address)
         showtime()
         logging.info("<<< %s" % data[0])
         logging.debug("---\n<< server send [%d]:\n%s\n---" % (len(text),text))
@@ -239,18 +239,19 @@ class UDPHandler(socketserver.BaseRequestHandler):
             if md:
                 header_expires = md.group(1)
         
-        if rx_invalid.search(contact) or rx_invalid2.search(contact):
-            if registrar.has_key(fromm):
-                del registrar[fromm]
-            self.sendResponse("488 Not Acceptable Here")    
-            return
+        #if rx_invalid.search(contact) or rx_invalid2.search(contact):
+        #    if fromm in registrar:
+        #        del registrar[fromm]
+        #    self.sendResponse("488 Not Acceptable Here")    
+        #    return
+
         if len(contact_expires) > 0:
             expires = int(contact_expires)
         elif len(header_expires) > 0:
             expires = int(header_expires)
             
         if expires == 0:
-            if registrar.has_key(fromm):
+            if fromm in registrar:
                 del registrar[fromm]
                 self.sendResponse("200 0K")
                 return
@@ -271,13 +272,13 @@ class UDPHandler(socketserver.BaseRequestHandler):
         logging.debug(" INVITE received ")
         logging.debug("-----------------")
         origin = self.getOrigin()
-        if len(origin) == 0 or not registrar.has_key(origin):
+        if len(origin) == 0 or not (origin in registrar):
             self.sendResponse("400 Bad Request")
             return
         destination = self.getDestination()
         if len(destination) > 0:
             logging.info("destination %s" % destination)
-            if registrar.has_key(destination) and self.checkValidity(destination):
+            if destination in registrar and self.checkValidity(destination):
                 socket,claddr = self.getSocketInfo(destination)
                 #self.changeRequestUri()
                 self.data = self.addTopVia()
@@ -301,7 +302,7 @@ class UDPHandler(socketserver.BaseRequestHandler):
         destination = self.getDestination()
         if len(destination) > 0:
             logging.info("destination %s" % destination)
-            if registrar.has_key(destination):
+            if destination in registrar:
                 socket,claddr = self.getSocketInfo(destination)
                 #self.changeRequestUri()
                 self.data = self.addTopVia()
@@ -319,13 +320,13 @@ class UDPHandler(socketserver.BaseRequestHandler):
         logging.debug(" NonInvite received   ")
         logging.debug("----------------------")
         origin = self.getOrigin()
-        if len(origin) == 0 or not registrar.has_key(origin):
+        if len(origin) == 0 or not (origin in registrar):
             self.sendResponse("400 Bad Request")
             return
         destination = self.getDestination()
         if len(destination) > 0:
             logging.info("destination %s" % destination)
-            if registrar.has_key(destination) and self.checkValidity(destination):
+            if destination in registrar and self.checkValidity(destination):
                 socket,claddr = self.getSocketInfo(destination)
                 #self.changeRequestUri()
                 self.data = self.addTopVia()
@@ -346,7 +347,7 @@ class UDPHandler(socketserver.BaseRequestHandler):
         origin = self.getOrigin()
         if len(origin) > 0:
             logging.debug("origin %s" % origin)
-            if registrar.has_key(origin):
+            if origin in registrar:
                 socket,claddr = self.getSocketInfo(origin)
                 self.data = self.removeRouteHeader()
                 data = self.removeTopVia()
@@ -384,11 +385,11 @@ class UDPHandler(socketserver.BaseRequestHandler):
             elif rx_update.search(request_uri):
                 self.processNonInvite()
             elif rx_subscribe.search(request_uri):
-                self.sendResponse("200 0K")
+                self.sendResponse("200 0KEJ")
             elif rx_publish.search(request_uri):
-                self.sendResponse("200 0K")
+                self.sendResponse("200 0KEJ")
             elif rx_notify.search(request_uri):
-                self.sendResponse("200 0K")
+                self.sendResponse("200 0KEJ")
             elif rx_code.search(request_uri):
                 self.processCode()
             else:
@@ -397,7 +398,7 @@ class UDPHandler(socketserver.BaseRequestHandler):
     
     def handle(self):
         #socket.setdefaulttimeout(120)
-        data = self.request[0]
+        data = self.request[0].decode("utf-8")
         self.data = data.split("\r\n")
         self.socket = self.request[1]
         request_uri = self.data[0]
