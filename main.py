@@ -12,8 +12,11 @@ if __name__ == "__main__":
     hostname = socket.gethostname()
     logging.info("SERVER HOSTNAME -> " + hostname)
     ipaddress = socket.gethostbyname(hostname)
-
-    if ipaddress == "127.0.0.1":
+    
+    tmp = input("0 manual, 1 auto:")
+    if tmp == "0":
+        ipaddress = input("Zadajte: ")
+    elif ipaddress == "127.0.0.1":
         ipaddress = sys.argv[1]
     logging.info(ipaddress)
 
@@ -21,5 +24,6 @@ if __name__ == "__main__":
     sip.topvia = "Via: SIP/2.0/UDP %s:%d" % (ipaddress,sip.PORT)
     
     server = socketserver.UDPServer((sip.HOST, sip.PORT), sip.UDPHandler)
-
+    print(sip.HOST)
+    print(ipaddress)
     server.serve_forever()

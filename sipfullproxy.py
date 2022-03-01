@@ -398,7 +398,7 @@ class UDPHandler(socketserver.BaseRequestHandler):
     
     def handle(self):
         #socket.setdefaulttimeout(120)
-        data = self.request[0].decode("utf-8")
+        data = self.request[0].decode("utf-8","ignore")
         self.data = data.split("\r\n")
         self.socket = self.request[1]
         request_uri = self.data[0]
