@@ -201,7 +201,7 @@ class UDPHandler(socketserver.BaseRequestHandler):
             if line == "":
                 break
         data.append("")
-        text = string.join(data,"\r\n")
+        text = "\r\n".join(data).encode("utf-8")
         self.socket.sendto(text,self.client_address)
         showtime()
         logging.info("<<< %s" % data[0])
@@ -284,7 +284,7 @@ class UDPHandler(socketserver.BaseRequestHandler):
                 data = self.removeRouteHeader()
                 #insert Record-Route
                 data.insert(1,recordroute)
-                text = string.join(data,"\r\n")
+                text = "\r\n".join(data).encode("utf-8")
                 socket.sendto(text , claddr)
                 showtime()
                 logging.info("<<< %s" % data[0])
@@ -308,7 +308,7 @@ class UDPHandler(socketserver.BaseRequestHandler):
                 data = self.removeRouteHeader()
                 #insert Record-Route
                 data.insert(1,recordroute)
-                text = string.join(data,"\r\n")
+                text = "\r\n".join(data).encode("utf-8")
                 socket.sendto(text,claddr)
                 showtime()
                 logging.info("<<< %s" % data[0])
@@ -332,7 +332,7 @@ class UDPHandler(socketserver.BaseRequestHandler):
                 data = self.removeRouteHeader()
                 #insert Record-Route
                 data.insert(1,recordroute)
-                text = string.join(data,"\r\n")
+                text = "\r\n".join(data).encode("utf-8")
                 socket.sendto(text , claddr)
                 showtime()
                 logging.info("<<< %s" % data[0])
@@ -350,7 +350,7 @@ class UDPHandler(socketserver.BaseRequestHandler):
                 socket,claddr = self.getSocketInfo(origin)
                 self.data = self.removeRouteHeader()
                 data = self.removeTopVia()
-                text = string.join(data,"\r\n")
+                text = "\r\n".join(data).encode("utf-8")
                 socket.sendto(text,claddr)
                 showtime()
                 logging.info("<<< %s" % data[0])
