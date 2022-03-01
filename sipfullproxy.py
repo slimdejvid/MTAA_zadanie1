@@ -273,7 +273,7 @@ class UDPHandler(socketserver.BaseRequestHandler):
         logging.debug("-----------------")
         origin = self.getOrigin()
         if len(origin) == 0 or not (origin in registrar):
-            self.sendResponse("400 Bad Request")
+            self.sendResponse("400 Zlý request")
             return
         destination = self.getDestination()
         if len(destination) > 0:
@@ -291,9 +291,9 @@ class UDPHandler(socketserver.BaseRequestHandler):
                 logging.info("<<< %s" % data[0])
                 logging.debug("---\n<< server send [%d]:\n%s\n---" % (len(text),text))
             else:
-                self.sendResponse("480 Temporarily Unavailable")
+                self.sendResponse("480 Dočasne neprístupný")
         else:
-            self.sendResponse("500 Server Internal Error")
+            self.sendResponse("500 Chyba na strane serveru")
                 
     def processAck(self):
         logging.debug("--------------")
@@ -339,9 +339,9 @@ class UDPHandler(socketserver.BaseRequestHandler):
                 logging.info("<<< %s" % data[0])
                 logging.debug("---\n<< server send [%d]:\n%s\n---" % (len(text),text))    
             else:
-                self.sendResponse("406 Not Acceptable")
+                self.sendResponse("406 Neakceptovateľné!")
         else:
-            self.sendResponse("500 Server Internal Error")
+            self.sendResponse("500 Chyba na strane serveru")
                 
     def processCode(self):
         origin = self.getOrigin()
